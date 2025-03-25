@@ -1,11 +1,6 @@
 use crate::{lexer::Token, token_handler::TokenHandler};
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Statement {
-    Definition(String, Box<Expression>),
-    Expression(Box<Expression>),
-}
-#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Id(String),
     Lambda(String, Box<Expression>),
@@ -52,13 +47,13 @@ fn expression(handler: &mut TokenHandler) -> Expression {
             };
 
             handler.next();
-            println!("next : {:?}", handler.get());
             if *handler.get() != Token::CParen {
                 panic!("Expected CParen");
             }
 
             expr
         }
+        Token::Lambda => lambda(handler),
         Token::Id(id) => Expression::Id(id.clone()),
         Token::Alias(id) => handler.get_def(&id),
         c => panic!("Unsupported Token: {:?}", c),
@@ -80,12 +75,9 @@ fn lambda(handler: &mut TokenHandler) -> Expression {
 }
 
 fn call(handler: &mut TokenHandler) -> Expression {
-    println!("call1: {:?}", handler.get());
     let a = Box::new(expression(handler));
     handler.next();
-    println!("call2: {:?}", handler.get());
     let b = Box::new(expression(handler));
-    println!("call3: {:?}", handler.get());
 
     Expression::Call(a, b)
 }

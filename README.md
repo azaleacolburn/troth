@@ -13,3 +13,9 @@ A simple lambda-Calculus parser
 - [x] Lexer
 - [x] Parser
 - [ ] Reducer
+
+## Examples
+
+(lx.(x y) e)
+
+(e y)

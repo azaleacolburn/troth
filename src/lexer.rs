@@ -25,14 +25,12 @@ pub fn lex(code: String) -> Vec<Token> {
                 i += 2;
                 tokens.push(Token::Define);
             }
-            ' ' => {
-                i += 1;
-                continue;
-            }
+            ' ' => {}
+            '\n' => {}
             ';' => tokens.push(Token::Semi),
-            mut c if c.is_uppercase() => {
+            mut c if c.is_uppercase() || c == '_' => {
                 alias.push(c);
-                while i + 1 < code.len() && code[i + 1].is_uppercase() {
+                while i + 1 < code.len() && (code[i + 1].is_uppercase() || code[i + 1] == '_') {
                     i += 1;
                     c = code[i];
                     alias.push(c);
@@ -40,7 +38,19 @@ pub fn lex(code: String) -> Vec<Token> {
                 tokens.push(Token::Alias(alias.clone()));
                 alias = "".to_string();
             }
-            c => tokens.push(Token::Id(c.to_string())),
+            mut c if c.is_alphanumeric() => {
+                alias.push(c);
+                while i + 1 < code.len() && (code[i + 1].is_alphanumeric() || code[i + 1] == '_') {
+                    i += 1;
+                    c = code[i];
+                    alias.push(c);
+                }
+                tokens.push(Token::Id(alias.clone()));
+                alias = "".to_string();
+            }
+            c => {
+                panic!("Unexpected character: ${c}");
+            }
         };
         i += 1;
     }

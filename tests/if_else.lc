@@ -1,0 +1,5 @@
+fn IF_ELSE lcond.lthen.lelse.((cond then) else);
+fn TRUE lf.ls.f;
+fn FALSE lf.ls.s;
+
+(((IF_ELSE TRUE) a) b)
