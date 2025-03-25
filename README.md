@@ -1,10 +1,10 @@
 # troth
 
-A simple &lambda-Calculus parser
+A simple lambda-Calculus parser
 
 ## Features
 
-- &lambda Expressions
+- Lambda Expressions
 - Expression Aliasing
 - Expression Reduction
 
