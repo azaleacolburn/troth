@@ -28,9 +28,13 @@ pub fn lex(code: String) -> Vec<Token> {
             ' ' => {}
             '\n' => {}
             ';' => tokens.push(Token::Semi),
-            mut c if c.is_uppercase() || c == '_' => {
+            mut c if c.is_uppercase() || is_valid_symbol(c) || c.is_numeric() => {
                 alias.push(c);
-                while i + 1 < code.len() && (code[i + 1].is_uppercase() || code[i + 1] == '_') {
+                while i + 1 < code.len()
+                    && (code[i + 1].is_uppercase()
+                        || code[i + 1].is_numeric()
+                        || is_valid_symbol(code[i + 1]))
+                {
                     i += 1;
                     c = code[i];
                     alias.push(c);
@@ -38,9 +42,9 @@ pub fn lex(code: String) -> Vec<Token> {
                 tokens.push(Token::Alias(alias.clone()));
                 alias = "".to_string();
             }
-            mut c if c.is_alphanumeric() => {
+            mut c if c.is_alphabetic() || c == '_' => {
                 alias.push(c);
-                while i + 1 < code.len() && (code[i + 1].is_alphanumeric() || code[i + 1] == '_') {
+                while i + 1 < code.len() && (code[i + 1].is_alphanumeric() || c == '_') {
                     i += 1;
                     c = code[i];
                     alias.push(c);
@@ -56,4 +60,9 @@ pub fn lex(code: String) -> Vec<Token> {
     }
 
     tokens
+}
+
+fn is_valid_symbol(c: char) -> bool {
+    let symbols = "$&+,:=?@#|'<>-^*%!_";
+    symbols.contains(c)
 }
