@@ -22,7 +22,7 @@ fn if_else() {
 
 #[test]
 fn bool_logic() {
-    let expect = Expr::Id("b".into());
+    let expect = Expr::Id("first".into());
     test("bool_logic", expect);
 }
 

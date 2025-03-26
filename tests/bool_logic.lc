@@ -1,8 +1,8 @@
-fn TRUE lf.ls.f;
-fn FALSE lf.ls.s;
-fn AND lf.ls.((f s) f);
-fn OR lf.ls.((f f) s);
-fn NOT lf.ls.lt.((f t) s);
+fn TRUE la.lb.a;
+fn FALSE lc.ld.d;
+fn AND le.lf.((e f) e);
+fn OR lg.lh.((g g) h);
+fn NOT li.lj.lk.((i k) j);
 fn IF_ELSE lcond.lthen.lelse.((cond then) else);
 
-(((IF_ELSE ((AND (NOT FALSE)) TRUE)) a) b)
+(((IF_ELSE ((AND (NOT FALSE)) TRUE)) first) second)
