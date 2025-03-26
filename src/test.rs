@@ -20,6 +20,12 @@ fn if_else() {
     test("if_else", expect);
 }
 
+#[test]
+fn bool_logic() {
+    let expect = Expr::Id("b".into());
+    test("bool_logic", expect);
+}
+
 fn test(name: impl ToString, expect: Expr) {
     let reduced = interpret(load(name));
     assert_eq!(reduced, expect);
