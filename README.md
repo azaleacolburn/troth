@@ -1,6 +1,6 @@
 # troth
 
-A simple Lambda-Calculus parser
+A simple Lambda-Calculus interpreter
 
 ## Features
 
