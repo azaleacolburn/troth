@@ -1,6 +1,6 @@
 # troth
 
-A simple Lambda-Calculus parser
+A simple Lambda-Calculus interpreter
 
 ## Features
 
@@ -27,11 +27,8 @@ SEMI: ;
 
 ```
 definiton: DEFINITION ALIAS expression SEMI
-
 expression: ALIAS | ID | call
-
 call: OPAREN expression expression CPAREN
-
 lambda: LAMBDA ID DOT expression
 ```
 
