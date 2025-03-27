@@ -55,7 +55,7 @@ fn expression(handler: &mut TokenHandler) -> Expression {
         }
         Token::Lambda => lambda(handler),
         Token::Id(id) => Expression::Id(id.clone()),
-        Token::Alias(id) => handler.get_def(&id),
+        Token::Alias(id) => alpha_conversion(Box::new(handler.get_def(&id)), id),
         c => panic!("Unsupported Token: {:?}", c),
     }
 }
@@ -80,4 +80,24 @@ fn call(handler: &mut TokenHandler) -> Expression {
     let b = Box::new(expression(handler));
 
     Expression::Call(a, b)
+}
+
+// TODO Change to mutate `expr` instead of cloning it
+fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
+    match *expr {
+        Expression::Id(id) => {
+            let new_id = format!("{id}_{postfix}");
+            Expression::Id(new_id)
+        }
+        Expression::Lambda(id, lambda_expr) => {
+            let new_expr = Box::new(alpha_conversion(lambda_expr, postfix));
+            let new_id = format!("{id}_{postfix}");
+            Expression::Lambda(new_id, new_expr)
+        }
+        Expression::Call(expr1, expr2) => {
+            let new_expr1 = Box::new(alpha_conversion(expr1, postfix));
+            let new_expr2 = Box::new(alpha_conversion(expr2, postfix));
+            Expression::Call(new_expr1, new_expr2)
+        }
+    }
 }
