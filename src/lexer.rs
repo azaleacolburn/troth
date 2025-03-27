@@ -25,6 +25,12 @@ pub fn lex(code: String) -> Vec<Token> {
                 i += 2;
                 tokens.push(Token::Define);
             }
+            '/' if code[i + 1] == '/' => {
+                i += 1;
+                while code[i] != '\n' {
+                    i += 1;
+                }
+            }
             ' ' => {}
             '\n' => {}
             ';' => tokens.push(Token::Semi),

@@ -23,6 +23,9 @@ DEFINITION: fn
 SEMI: ;
 ```
 
+> [!NOTE]
+> Comments are denoted by `//` and run until the end of the line
+
 ### Grammar Rules
 
 ```
