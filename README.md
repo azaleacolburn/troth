@@ -51,11 +51,11 @@ lambda: LAMBDA ID DOT expression
 | `fn >=1 lx.(((x F) N) T)`        | `x >= 1`   |
 
 > [!NOTE]
-> This grammar does support numerical and 'special' characters in (and even as the first character of) aliases, meaning full high-level languages could be defined with normal arithmatic
+> This grammar does support numerical and 'special' characters in (and even as the first character of) ALIASes, meaning full high-level languages could be defined with normal arithmatic. However, IDs must be lowercase alphabetic characters and the '_' character.
 
 ## TODO
 
 - [x] Lexer
 - [x] Parser
 - [x] Reducer
-- [ ] Automatic Alpha Converter
+- [x] Automatic Alpha Converter
