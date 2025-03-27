@@ -7,6 +7,7 @@ pub enum Expression {
     Call(Box<Expression>, Box<Expression>),
 }
 
+// TODO Find better way to return null
 pub fn parse(handler: &mut TokenHandler) -> Vec<Expression> {
     match handler.get() {
         Token::Define => {
@@ -98,6 +99,25 @@ fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
             let new_expr1 = Box::new(alpha_conversion(expr1, postfix));
             let new_expr2 = Box::new(alpha_conversion(expr2, postfix));
             Expression::Call(new_expr1, new_expr2)
+        }
+    }
+}
+
+impl ToString for Expression {
+    fn to_string(&self) -> String {
+        match self {
+            Expression::Id(id) => String::from(id),
+            Expression::Call(expr1, expr2) => {
+                let string1 = expr1.to_string();
+                let string2 = expr2.to_string();
+
+                format!("({string1} {string2})")
+            }
+            Expression::Lambda(id, expr) => {
+                let string_expr = expr.to_string();
+
+                format!("l{id}.{string_expr}")
+            }
         }
     }
 }

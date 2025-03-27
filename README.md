@@ -14,7 +14,7 @@ A simple Lambda-Calculus interpreter
 
 ```
 ALIAS: [A-Z0-9_$&+,:=?@#|'<>.-^\*%!]+
-ID: [a-z_]+
+ID: [a-km-z_]+
 OPAREN: \(
 CPAREN: \)
 DOT: \.
@@ -62,7 +62,7 @@ lambda: LAMBDA ID DOT expression
 - [x] Parser
 - [x] Reducer
 - [x] Automatic Alpha Converter
-- [ ] Robust CLI Functionality
+- [x] CLI Functionality
 - [ ] Cross-File Linking
   - [ ] Basic Static Linking
   - [ ] Library System (still static linking)

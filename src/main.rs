@@ -1,5 +1,10 @@
+use anyhow::Result;
+use clap::Parser;
+use cli::{BackendOption, Cli};
 use parser::Expression;
+use reducer::reduce;
 
+mod cli;
 mod lexer;
 mod parser;
 mod reducer;
@@ -7,18 +12,22 @@ mod reducer;
 mod test;
 mod token_handler;
 
-fn main() {
-    let code: String = "fn D ((lx.(ly.(y x))) ((lz.z) x)); fn G (D ((lx.x) D)); (D G)".into();
-    interpret(code);
-}
-
-pub fn interpret(code: String) -> Expression {
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+    let code = cli.read_input()?;
     let tokens = lexer::lex(code);
-    println!("{:?}", tokens);
     let mut token_handler = token_handler::TokenHandler::new(tokens);
     let ast = parser::parse(&mut token_handler);
-    println!("{:?}", ast);
-    let reduced = reducer::reduce(&ast[0]);
-    println!("{:?}", reduced);
-    reduced
+
+    let output: String = match cli.get_backend() {
+        BackendOption::Reduce => handle_reduction(&ast[0]),
+        BackendOption::Compile => panic!("Unsupported Backend Option"),
+        BackendOption::Transpile => panic!("Unsupported Backend Option"),
+    };
+
+    cli.write_output(&output)
+}
+
+fn handle_reduction(ast: &Expression) -> String {
+    format!("{}\n", reduce(ast).to_string())
 }
