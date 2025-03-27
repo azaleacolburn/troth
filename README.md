@@ -54,7 +54,7 @@ lambda: LAMBDA ID DOT expression
 | `fn >=1 lx.(((x F) N) T)`        | `x >= 1`   |
 
 > [!NOTE]
-> This grammar does support numerical and 'special' characters in (and even as the first character of) ALIASes, meaning full high-level languages could be defined with normal arithmatic. However, IDs must be lowercase alphabetic characters and the '_' character.
+> This grammar does support numerical and 'special' characters in (and even as the first character of) ALIASes, meaning full high-level languages could be defined with normal arithmatic. However, IDs must be lowercase alphabetic characters and the '\_' character.
 
 ## TODO
 
@@ -62,3 +62,17 @@ lambda: LAMBDA ID DOT expression
 - [x] Parser
 - [x] Reducer
 - [x] Automatic Alpha Converter
+- [ ] Robust CLI Functionality
+- [ ] Cross-File Linking
+  - [ ] Basic Static Linking
+  - [ ] Library System (still static linking)
+- [ ] Multiple Backend Options
+  - [x] Reduction
+  - [ ] Transpilation to C
+  - [ ] Transpilation to some functional language
+  - [ ] Compilation to ARM64 Assembly
+
+## Quirks
+
+- When Troth encounters an ALIAS being invoked, it first runs the alias through a an alpha_conversion process, where each id within the aliased expression is appended with an alias-specific postfix to avoid conflation
+- Currently, Troth immediantly evaluates the expression without displaying intermediate steps
