@@ -1,6 +1,10 @@
 use std::fs::read_to_string;
 
-use crate::{interpret, parser::Expression as Expr};
+use crate::{
+    lexer,
+    parser::{self, Expression as Expr},
+    reducer, token_handler,
+};
 
 #[test]
 fn id_reduct() {
@@ -33,4 +37,15 @@ fn test(name: impl ToString, expect: Expr) {
 fn load(name: impl ToString) -> String {
     let name = format!("./tests/{}.lc", name.to_string());
     read_to_string(name).expect("Test function missing test file")
+}
+
+fn interpret(code: String) -> Expr {
+    let tokens = lexer::lex(code);
+    println!("{:?}", tokens);
+    let mut token_handler = token_handler::TokenHandler::new(tokens);
+    let ast = parser::parse(&mut token_handler);
+    println!("{:?}", ast);
+    let reduced = reducer::reduce(&ast[0]);
+    println!("{:?}", reduced);
+    reduced
 }
