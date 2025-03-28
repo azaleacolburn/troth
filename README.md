@@ -1,10 +1,10 @@
 # troth
 
-A simple Lambda-Calculus interpreter
+A simple λ-Calculus interpreter
 
 ## Features
 
-- Lambda Expressions
+- λ Expressions
 - Expression Aliasing
 - Expression Reduction
 
@@ -37,7 +37,7 @@ lambda: LAMBDA ID DOT expression
 
 ## Examples
 
-| Lambda Calculus Definition       | Rust Usage |
+| λ-Calculus Definition            | Rust Usage |
 | -------------------------------- | ---------- |
 | `fn T lx.ly.x`                   | `true`     |
 | `fn F lx.ly.y`                   | `false`    |
@@ -74,5 +74,5 @@ lambda: LAMBDA ID DOT expression
 
 ## Quirks
 
-- When Troth encounters an ALIAS being invoked, it first runs the alias through a an alpha_conversion process, where each id within the aliased expression is appended with an alias-specific postfix to avoid conflation
+- When Troth encounters an `ALIAS` being invoked, it first runs the alias through a an alpha conversion process, where each id within the aliased expression is appended with an alias-specific postfix to avoid conflation
 - Currently, Troth immediantly evaluates the expression without displaying intermediate steps
