@@ -4,7 +4,7 @@ A simple λ-Calculus interpreter
 
 ## Features
 
-- λ Expressions
+- λ Abstractions
 - Expression Aliasing
 - Expression Reduction
 
