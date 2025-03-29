@@ -1,4 +1,5 @@
 use crate::{lexer::Token, token_handler::TokenHandler};
+use anyhow::{bail, Context, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -7,80 +8,83 @@ pub enum Expression {
     Call(Box<Expression>, Box<Expression>),
 }
 
-// TODO Find better way to return null
-pub fn parse(handler: &mut TokenHandler) -> Vec<Expression> {
-    match handler.get() {
-        Token::Define => {
-            handler.next();
-            if let Token::Alias(id) = handler.get().clone() {
-                handler.next();
-                let expr = expression(handler);
+impl TokenHandler {
+    // TODO Find better way to return null
+    /// Returns Ok(None) if there are only aliases
+    pub fn parse(&mut self) -> Result<Option<Expression>> {
+        match self.get() {
+            Token::Define => {
+                self.next();
+                if let Token::Alias(id) = self.get().clone() {
+                    self.next();
+                    let expr = self.expression()?;
 
-                handler.next();
-                if *handler.get() != Token::Semi {
-                    panic!("Expected Semi after definition");
+                    self.next();
+                    if *self.get() != Token::Semi {
+                        bail!("Expected Semi after definition found {:?}", self.get());
+                    }
+
+                    self.new_def(id.clone(), expr);
+
+                    if self.is_done() {
+                        return Ok(None);
+                    }
+
+                    self.next();
+                    let r = self.parse();
+
+                    return r;
+                }
+                bail!("Found definition without name");
+            }
+            _ => Ok(Some(self.expression()?)),
+        }
+    }
+
+    fn expression(&mut self) -> Result<Expression> {
+        Ok(match self.get() {
+            Token::OParen => {
+                self.next();
+                let expr = match self.get() {
+                    Token::Lambda => self.lambda()?,
+                    _ => self.call()?,
+                };
+
+                self.next();
+                if *self.get() != Token::CParen {
+                    bail!("Expected CParen found {:?}", self.get());
                 }
 
-                handler.new_def(id.clone(), expr);
-
-                if handler.is_done() {
-                    return vec![];
-                }
-
-                handler.next();
-                let r = parse(handler);
-
-                return r;
+                expr
             }
-            panic!("Definition without name");
-        }
-        _ => vec![expression(handler)],
+            Token::Lambda => self.lambda()?,
+            Token::Id(id) => Expression::Id(id.clone()),
+            Token::Alias(id) => alpha_conversion(Box::new(self.get_def(&id)), &id),
+            c => bail!("Unsupported Token: {:?}", c),
+        })
     }
-}
 
-fn expression(handler: &mut TokenHandler) -> Expression {
-    match handler.get() {
-        Token::OParen => {
-            handler.next();
-            let expr = match handler.get() {
-                Token::Lambda => lambda(handler),
-                _ => call(handler),
-            };
-
-            handler.next();
-            if *handler.get() != Token::CParen {
-                panic!("Expected CParen found {:?}", handler.get());
+    fn lambda(&mut self) -> Result<Expression> {
+        self.next();
+        if let Token::Id(id) = self.get().clone() {
+            self.next();
+            if *self.get() == Token::Dot {
+                self.next();
+                return Ok(Expression::Lambda(id.clone(), Box::new(self.expression()?)));
             }
-
-            expr
+            bail!("Found lambda without dot");
         }
-        Token::Lambda => lambda(handler),
-        Token::Id(id) => Expression::Id(id.clone()),
-        Token::Alias(id) => alpha_conversion(Box::new(handler.get_def(&id)), id),
-        c => panic!("Unsupported Token: {:?}", c),
-    }
-}
 
-fn lambda(handler: &mut TokenHandler) -> Expression {
-    handler.next();
-    if let Token::Id(id) = handler.get().clone() {
-        handler.next();
-        if *handler.get() == Token::Dot {
-            handler.next();
-            return Expression::Lambda(id.clone(), Box::new(expression(handler)));
-        }
-        panic!("Found lambda without dot");
+        bail!("Found lambda without id");
     }
 
-    panic!("Found lambda without id");
-}
+    fn call(&mut self) -> Result<Expression> {
+        let a = Box::new(self.expression()?);
+        self.next();
+        let b = Box::new(self.expression()?);
 
-fn call(handler: &mut TokenHandler) -> Expression {
-    let a = Box::new(expression(handler));
-    handler.next();
-    let b = Box::new(expression(handler));
-
-    Expression::Call(a, b)
+        Ok(Expression::Call(a, b))
+    }
 }
 
 // TODO Change to mutate `expr` instead of cloning it
