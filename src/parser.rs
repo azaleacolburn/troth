@@ -49,7 +49,7 @@ fn expression(handler: &mut TokenHandler) -> Expression {
 
             handler.next();
             if *handler.get() != Token::CParen {
-                panic!("Expected CParen");
+                panic!("Expected CParen found {:?}", handler.get());
             }
 
             expr
