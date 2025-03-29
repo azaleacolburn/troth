@@ -31,9 +31,9 @@ fn bool_logic() {
 }
 
 #[test]
-fn arithmatic() {
+fn arithmetic() {
     let expect = Expr::Id("a".into());
-    test("arithmatic", expect);
+    test("arithmetic", expect);
 }
 
 fn test(name: impl ToString, expect: Expr) {
