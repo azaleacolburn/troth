@@ -30,6 +30,12 @@ fn bool_logic() {
     test("bool_logic", expect);
 }
 
+#[test]
+fn arithmatic() {
+    let expect = Expr::Id("a".into());
+    test("arithmatic", expect);
+}
+
 fn test(name: impl ToString, expect: Expr) {
     let reduced = interpret(load(name));
     assert_eq!(reduced, expect);

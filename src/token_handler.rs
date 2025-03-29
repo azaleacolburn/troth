@@ -30,6 +30,7 @@ impl TokenHandler {
     }
 
     pub fn get_def(&self, id: &str) -> Expression {
+        println!("{id}");
         self.definitions.get(id).unwrap().clone()
     }
 
