@@ -5,6 +5,7 @@ use parser::Expression;
 use reducer::reduce;
 
 mod cli;
+mod error;
 mod lexer;
 mod parser;
 mod reducer;
