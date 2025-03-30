@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{lexer::Token, parser::Expression};
 
+#[derive(Debug, Clone)]
 pub struct TokenHandler {
     tokens: Vec<Token>,
     curr: usize,

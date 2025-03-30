@@ -18,54 +18,73 @@ impl TokenHandler {
         }
     }
 
+    fn atom(&mut self) -> Result<Expression> {
+        match self.get() {
+            Token::OParen => self.expression(),
+            Token::Id(id) => Ok(Expression::Id(id.clone())),
+            _ => bail!("Expected '(' or id, found {}", self.get().to_string()),
+        }
+    }
+
     fn expression(&mut self) -> Result<Expression> {
-        Ok(match self.get() {
-            Token::OParen => {
-                self.next();
-                let expr = match self.get() {
-                    Token::Lambda => self.lambda()?,
-                    _ => self.call()?,
-                };
+        let anchor = self.clone();
+        let atom_result = self.atom();
+        if atom_result.is_ok() {
+            return atom_result;
+        }
+        *self = anchor;
 
-                self.next();
-                if *self.get() != Token::CParen {
-                    bail!("Expected ')' found '{}'", self.get().to_string());
-                }
+        let abstraction_result = self.abstraction();
+        if abstraction_result.is_ok() {
+            return abstraction_result;
+        }
+        *self = anchor;
 
-                expr
-            }
-            Token::Lambda => self.lambda()?,
-            Token::Id(id) => Expression::Id(id.clone()),
-            Token::Alias(id) => alpha_conversion(Box::new(self.get_def(&id)), &id),
-            _ => self.call()?,
-        })
+        let application_result = self.application();
+        if application_result.is_ok() {
+            return application_result;
+        }
+
+        atom_result
     }
 
-    fn lambda(&mut self) -> Result<Expression> {
+    fn abstraction(&mut self) -> Result<Expression> {
+        if *self.get() != Token::Lambda {
+            bail!("Expected Lambda found {}", self.get().to_string());
+        }
+
         self.next();
+
         if let Token::Id(id) = self.get().clone() {
-            self.next();
             if *self.get() != Token::Dot {
-                bail!("Found lambda without '.'");
+                bail!("Expected '.' found {}", self.get().to_string());
             }
 
-            self.next();
-            return Ok(Expression::Lambda(id.clone(), Box::new(self.expression()?)));
+            let expr = self.expression()?;
+            return Ok(Expression::Lambda(id.clone(), Box::new(expr)));
         }
 
-        bail!("Found lambda without argument id");
+        bail!("Expected id found {}", self.get().to_string())
     }
 
-    fn call(&mut self) -> Result<Expression> {
-        let a = self.expression()?;
-        if self.is_done() {
-            return Ok(a);
+    fn application(&mut self) -> Result<Expression> {
+        let mut anchor = self.clone();
+        let atom_result = self.atom();
+        if atom_result.is_ok() {
+            return atom_result;
         }
+        *self = anchor;
 
-        self.next();
-        let b = self.expression()?;
+        let sub_application = self.application()?;
 
-        Ok(Expression::Call(Box::new(a), Box::new(b)))
+        anchor = self.clone();
+        let atom_result = self.atom();
+        if atom_result.is_ok() {
+            return Expression::Lambda(, ());
+        }
+        *self = anchor;
+
+        let abstraction
     }
 
     fn definition(&mut self) -> Result<Option<Expression>> {
