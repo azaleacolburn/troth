@@ -17,10 +17,10 @@ fn main() -> Result<()> {
     let code = cli.read_input()?;
     let tokens = lexer::lex(code);
     let mut token_handler = token_handler::TokenHandler::new(tokens);
-    let ast = parser::parse(&mut token_handler);
+    let ast = parser::parse(&mut token_handler)?.unwrap();
 
     let output: String = match cli.get_backend() {
-        BackendOption::Reduce => handle_reduction(&ast[0]),
+        BackendOption::Reduce => handle_reduction(&ast),
         BackendOption::Compile => panic!("Unsupported Backend Option"),
         BackendOption::Transpile => panic!("Unsupported Backend Option"),
     };

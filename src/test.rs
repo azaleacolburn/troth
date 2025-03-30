@@ -49,9 +49,9 @@ fn interpret(code: String) -> Expr {
     let tokens = lexer::lex(code);
     println!("{:?}", tokens);
     let mut token_handler = token_handler::TokenHandler::new(tokens);
-    let ast = parser::parse(&mut token_handler);
+    let ast = parser::parse(&mut token_handler).unwrap().unwrap();
     println!("{:?}", ast);
-    let reduced = reducer::reduce(&ast[0]);
+    let reduced = reducer::reduce(&ast);
     println!("{:?}", reduced);
     reduced
 }

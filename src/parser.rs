@@ -1,3 +1,6 @@
+use anyhow::bail;
+use anyhow::Result;
+
 use crate::{lexer::Token, token_handler::TokenHandler};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,23 +11,23 @@ pub enum Expression {
 }
 
 // TODO Find better way to return null
-pub fn parse(handler: &mut TokenHandler) -> Vec<Expression> {
+pub fn parse(handler: &mut TokenHandler) -> Result<Option<Expression>> {
     match handler.get() {
         Token::Define => {
             handler.next();
             if let Token::Alias(id) = handler.get().clone() {
                 handler.next();
-                let expr = expression(handler);
+                let expr = expression(handler)?;
 
                 handler.next();
                 if *handler.get() != Token::Semi {
-                    panic!("Expected Semi after definition");
+                    bail!("Expected Semi after definition");
                 }
 
                 handler.new_def(id.clone(), expr);
 
                 if handler.is_done() {
-                    return vec![];
+                    return Ok(None);
                 }
 
                 handler.next();
@@ -32,55 +35,58 @@ pub fn parse(handler: &mut TokenHandler) -> Vec<Expression> {
 
                 return r;
             }
-            panic!("Definition without name");
+            bail!("Definition without name");
         }
-        _ => vec![expression(handler)],
+        _ => Ok(Some(expression(handler)?)),
     }
 }
 
-fn expression(handler: &mut TokenHandler) -> Expression {
-    match handler.get() {
+fn expression(handler: &mut TokenHandler) -> Result<Expression> {
+    Ok(match handler.get() {
         Token::OParen => {
             handler.next();
             let expr = match handler.get() {
-                Token::Lambda => lambda(handler),
-                _ => call(handler),
+                Token::Lambda => lambda(handler)?,
+                _ => call(handler)?,
             };
 
             handler.next();
             if *handler.get() != Token::CParen {
-                panic!("Expected CParen found {:?}", handler.get());
+                bail!("Expected CParen found {:?}", handler.get());
             }
 
             expr
         }
-        Token::Lambda => lambda(handler),
+        Token::Lambda => lambda(handler)?,
         Token::Id(id) => Expression::Id(id.clone()),
         Token::Alias(id) => alpha_conversion(Box::new(handler.get_def(&id)), id),
-        c => panic!("Unsupported Token: {:?}", c),
-    }
+        c => bail!("Unsupported Token: {:?}", c),
+    })
 }
 
-fn lambda(handler: &mut TokenHandler) -> Expression {
+fn lambda(handler: &mut TokenHandler) -> Result<Expression> {
     handler.next();
     if let Token::Id(id) = handler.get().clone() {
         handler.next();
         if *handler.get() == Token::Dot {
             handler.next();
-            return Expression::Lambda(id.clone(), Box::new(expression(handler)));
+            return Ok(Expression::Lambda(
+                id.clone(),
+                Box::new(expression(handler)?),
+            ));
         }
-        panic!("Found lambda without dot");
+        bail!("Found lambda without dot");
     }
 
-    panic!("Found lambda without id");
+    bail!("Found lambda without id");
 }
 
-fn call(handler: &mut TokenHandler) -> Expression {
-    let a = Box::new(expression(handler));
+fn call(handler: &mut TokenHandler) -> Result<Expression> {
+    let a = Box::new(expression(handler)?);
     handler.next();
-    let b = Box::new(expression(handler));
+    let b = Box::new(expression(handler)?);
 
-    Expression::Call(a, b)
+    Ok(Expression::Call(a, b))
 }
 
 // TODO Change to mutate `expr` instead of cloning it
