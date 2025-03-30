@@ -16,8 +16,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let code = cli.read_input()?;
     let tokens = lexer::lex(code);
-    let mut token_handler = token_handler::TokenHandler::new(tokens);
-    let ast = parser::parse(&mut token_handler)?.unwrap();
+    let mut parser = token_handler::Parser::new(tokens);
+    let ast = parser.parse()?.unwrap();
 
     let output: String = match cli.get_backend() {
         BackendOption::Reduce => handle_reduction(&ast),

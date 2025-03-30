@@ -2,15 +2,15 @@ use std::collections::HashMap;
 
 use crate::{lexer::Token, parser::Expression};
 
-pub struct TokenHandler {
+pub struct Parser {
     tokens: Vec<Token>,
     curr: usize,
     definitions: HashMap<String, Expression>,
 }
 
-impl TokenHandler {
+impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
-        TokenHandler {
+        Parser {
             tokens,
             curr: 0,
             definitions: HashMap::new(),

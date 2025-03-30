@@ -1,10 +1,6 @@
 use std::fs::read_to_string;
 
-use crate::{
-    lexer,
-    parser::{self, Expression as Expr},
-    reducer, token_handler,
-};
+use crate::{lexer, parser::Expression as Expr, reducer, token_handler};
 
 #[test]
 fn id_reduct() {
@@ -48,8 +44,8 @@ fn load(name: impl ToString) -> String {
 fn interpret(code: String) -> Expr {
     let tokens = lexer::lex(code);
     println!("{:?}", tokens);
-    let mut token_handler = token_handler::TokenHandler::new(tokens);
-    let ast = parser::parse(&mut token_handler).unwrap().unwrap();
+    let mut parser = token_handler::Parser::new(tokens);
+    let ast = parser.parse().unwrap().unwrap();
     println!("{:?}", ast);
     let reduced = reducer::reduce(&ast);
     println!("{:?}", reduced);
