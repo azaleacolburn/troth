@@ -25,12 +25,15 @@ impl Parser {
         self.curr += 1;
     }
 
+    pub fn prev(&mut self) {
+        self.curr -= 1;
+    }
+
     pub fn is_done(&self) -> bool {
         self.curr == self.tokens.len() - 1
     }
 
     pub fn get_def(&self, id: &str) -> Expression {
-        println!("{id}");
         self.definitions.get(id).unwrap().clone()
     }
 

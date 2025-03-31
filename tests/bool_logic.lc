@@ -14,4 +14,4 @@ fn NOT la.lb.lc.((a c) b);
 // Params: condition, true case, false case
 fn IF_ELSE lcond.lthen.lelse.((cond then) else);
 
-(((IF_ELSE ((AND (NOT FALSE)) TRUE)) first) second)
+((IF_ELSE ((AND (NOT FALSE)) TRUE)) first) second)

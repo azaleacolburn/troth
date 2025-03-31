@@ -13,13 +13,14 @@ impl Parser {
     pub fn parse(&mut self) -> Result<Option<Expression>> {
         match self.get() {
             Token::Define => self.define(),
-            _ => Ok(Some(self.expression()?)),
+            _ => Ok(Some(self.call()?)),
         }
     }
 
     fn expression(&mut self) -> Result<Expression> {
         Ok(match self.get() {
             Token::OParen => {
+                println!("here");
                 self.next();
                 let expr = match self.get() {
                     Token::Lambda => self.lambda()?,
@@ -27,8 +28,9 @@ impl Parser {
                 };
 
                 self.next();
-                if *self.get() != Token::CParen {
-                    bail!("Expected CParen found {:?}", self.get());
+                let cparen = self.get();
+                if *cparen != Token::CParen {
+                    bail!("Expected CParen found {}", cparen.to_string());
                 }
 
                 expr
@@ -49,29 +51,45 @@ impl Parser {
             }
 
             self.next();
-            return Ok(Expression::Lambda(id.clone(), Box::new(self.expression()?)));
+            return Ok(Expression::Lambda(id.clone(), Box::new(self.call()?)));
         }
 
         bail!("Found lambda without id");
     }
 
     fn call(&mut self) -> Result<Expression> {
-        let a = Box::new(self.expression()?);
-        self.next();
-        let b = Box::new(self.expression()?);
+        println!("call {:?}", self.get());
+        let mut a = Box::new(self.expression()?);
+        println!("b {:?}", self.get());
+        loop {
+            if self.is_done() {
+                return Ok(*a);
+            }
+            self.next();
 
-        Ok(Expression::Call(a, b))
+            println!("next {:?}", self.get());
+            if *self.get() == Token::CParen || *self.get() == Token::Semi {
+                self.prev();
+                return Ok(*a);
+            }
+
+            let b = Box::new(self.expression()?);
+            a = Box::new(Expression::Call(a.clone(), b));
+        }
     }
 
     fn define(&mut self) -> Result<Option<Expression>> {
         self.next();
         if let Token::Alias(id) = self.get().clone() {
             self.next();
-            let expr = self.expression()?;
-
+            let expr = self.call()?;
             self.next();
+
             if *self.get() != Token::Semi {
-                bail!("Expected Semi after definition");
+                bail!(
+                    "Expected Semi after definition found {}",
+                    self.get().to_string()
+                );
             }
 
             self.new_def(id.clone(), expr);

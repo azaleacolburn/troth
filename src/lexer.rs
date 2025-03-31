@@ -72,3 +72,19 @@ fn is_valid_symbol(c: char) -> bool {
     let symbols = "$&+,:=?@#|'<>-^*%!_";
     symbols.contains(c)
 }
+
+impl ToString for Token {
+    fn to_string(&self) -> String {
+        match self {
+            Token::OParen => ")",
+            Token::CParen => "(",
+            Token::Dot => ".",
+            Token::Semi => ";",
+            Token::Lambda => "l",
+            Token::Define => "fn",
+            Token::Id(id) => id,
+            Token::Alias(id) => id,
+        }
+        .into()
+    }
+}
