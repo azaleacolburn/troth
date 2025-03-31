@@ -4,16 +4,16 @@ use anyhow::{bail, Result};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Id(String),
-    Lambda(String, Box<Expression>),
-    Call(Box<Expression>, Box<Expression>),
+    Abstraction(String, Box<Expression>),
+    Application(Box<Expression>, Box<Expression>),
 }
 
 impl Parser {
     // TODO Find better way to return null
     pub fn parse(&mut self) -> Result<Option<Expression>> {
         match self.get() {
-            Token::Define => self.define(),
-            _ => Ok(Some(self.call()?)),
+            Token::Define => self.definition(),
+            _ => Ok(Some(self.application()?)),
         }
     }
 
@@ -23,8 +23,8 @@ impl Parser {
                 println!("here");
                 self.next();
                 let expr = match self.get() {
-                    Token::Lambda => self.lambda()?,
-                    _ => self.call()?,
+                    Token::Lambda => self.abstraction()?,
+                    _ => self.application()?,
                 };
 
                 self.next();
@@ -35,54 +35,54 @@ impl Parser {
 
                 expr
             }
-            Token::Lambda => self.lambda()?,
+            Token::Lambda => self.abstraction()?,
             Token::Id(id) => Expression::Id(id.clone()),
             Token::Alias(id) => alpha_conversion(Box::new(self.get_def(&id)), &id),
             c => bail!("Unsupported Token: {:?}", c),
         })
     }
 
-    fn lambda(&mut self) -> Result<Expression> {
+    fn abstraction(&mut self) -> Result<Expression> {
         self.next();
         if let Token::Id(id) = self.get().clone() {
             self.next();
             if *self.get() != Token::Dot {
-                bail!("Found lambda without dot");
+                bail!("Found abstraction without dot");
             }
 
             self.next();
-            return Ok(Expression::Lambda(id.clone(), Box::new(self.call()?)));
+            return Ok(Expression::Abstraction(
+                id.clone(),
+                Box::new(self.application()?),
+            ));
         }
 
-        bail!("Found lambda without id");
+        bail!("Found abstraction without id");
     }
 
-    fn call(&mut self) -> Result<Expression> {
-        println!("call {:?}", self.get());
+    fn application(&mut self) -> Result<Expression> {
         let mut a = Box::new(self.expression()?);
-        println!("b {:?}", self.get());
         loop {
             if self.is_done() {
                 return Ok(*a);
             }
             self.next();
 
-            println!("next {:?}", self.get());
             if *self.get() == Token::CParen || *self.get() == Token::Semi {
                 self.prev();
                 return Ok(*a);
             }
 
             let b = Box::new(self.expression()?);
-            a = Box::new(Expression::Call(a.clone(), b));
+            a = Box::new(Expression::Application(a.clone(), b));
         }
     }
 
-    fn define(&mut self) -> Result<Option<Expression>> {
+    fn definition(&mut self) -> Result<Option<Expression>> {
         self.next();
         if let Token::Alias(id) = self.get().clone() {
             self.next();
-            let expr = self.call()?;
+            let expr = self.application()?;
             self.next();
 
             if *self.get() != Token::Semi {
@@ -115,15 +115,15 @@ fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
             let new_id = format!("{id}_{postfix}");
             Expression::Id(new_id)
         }
-        Expression::Lambda(id, lambda_expr) => {
-            let new_expr = Box::new(alpha_conversion(lambda_expr, postfix));
+        Expression::Abstraction(id, abstraction_expr) => {
+            let new_expr = Box::new(alpha_conversion(abstraction_expr, postfix));
             let new_id = format!("{id}_{postfix}");
-            Expression::Lambda(new_id, new_expr)
+            Expression::Abstraction(new_id, new_expr)
         }
-        Expression::Call(expr1, expr2) => {
+        Expression::Application(expr1, expr2) => {
             let new_expr1 = Box::new(alpha_conversion(expr1, postfix));
             let new_expr2 = Box::new(alpha_conversion(expr2, postfix));
-            Expression::Call(new_expr1, new_expr2)
+            Expression::Application(new_expr1, new_expr2)
         }
     }
 }
@@ -132,13 +132,13 @@ impl ToString for Expression {
     fn to_string(&self) -> String {
         match self {
             Expression::Id(id) => String::from(id),
-            Expression::Call(expr1, expr2) => {
+            Expression::Application(expr1, expr2) => {
                 let string1 = expr1.to_string();
                 let string2 = expr2.to_string();
 
                 format!("({string1} {string2})")
             }
-            Expression::Lambda(id, expr) => {
+            Expression::Abstraction(id, expr) => {
                 let string_expr = expr.to_string();
 
                 format!("l{id}.{string_expr}")

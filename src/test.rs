@@ -10,7 +10,7 @@ fn id_reduct() {
 
 #[test]
 fn lambda_reduct() {
-    let expect = Expr::Lambda("y".into(), Box::new(Expr::Id("y".into())));
+    let expect = Expr::Abstraction("y".into(), Box::new(Expr::Id("y".into())));
     test("lambda_reduct", expect);
 }
 
