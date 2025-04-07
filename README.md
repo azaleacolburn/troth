@@ -30,8 +30,8 @@ SEMI: ;
 
 ```
 definiton: DEFINITION ALIAS expression SEMI
-expression: ALIAS | ID | call
-call: OPAREN expression expression CPAREN
+expression: OPAREN (ALIAS | ID | call) CPAREN
+call: expression expression
 lambda: LAMBDA ID DOT expression
 ```
 
