@@ -32,12 +32,14 @@ pub fn lex(code: String) -> Vec<Token> {
                 && code[i + 2] == 'e'
                 && (code[i + 3] == ' ' || code[i + 3] == '"') =>
             {
-                i += 3;
+                i += 5;
                 let mut path_str = String::new();
                 while code[i] != '"' {
                     path_str.push(code[i]);
                     i += 1;
                 }
+
+                tokens.push(Token::Use(PathBuf::from(path_str)));
             }
             '/' if code[i + 1] == '/' => {
                 i += 1;
@@ -73,7 +75,7 @@ pub fn lex(code: String) -> Vec<Token> {
                 alias = "".to_string();
             }
             c => {
-                panic!("Unexpected character: ${c}");
+                panic!("Unexpected character: {c}");
             }
         };
         i += 1;

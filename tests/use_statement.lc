@@ -1,0 +1,3 @@
+use "./tests/bool_logic.lc";
+
+IF_ELSE (&& (! FALSE) TRUE) first second

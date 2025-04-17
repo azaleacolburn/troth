@@ -93,7 +93,7 @@ impl Parser {
 
             if *self.get() != Token::Semi {
                 bail!(
-                    "Expected Semi after definition found {}",
+                    "Expected Semi after definition, found {}",
                     self.get().to_string()
                 );
             }
@@ -121,9 +121,18 @@ impl Parser {
         let mut parser = Parser::new(tokens);
         parser.parse()?;
 
+        self.next();
+        if *self.get() != Token::Semi {
+            bail!(
+                "Expected Semi after use statement, found {}",
+                self.get().to_string()
+            )
+        }
+
         self.merge_definitions(&parser);
 
-        Ok(None)
+        self.next();
+        self.parse()
     }
 }
 

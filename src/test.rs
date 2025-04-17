@@ -32,6 +32,12 @@ fn arithmetic() {
     test("arithmetic", expect);
 }
 
+#[test]
+fn use_statement() {
+    let expect = Expr::Id("first".into());
+    test("use_statement", expect);
+}
+
 fn test(name: impl ToString, expect: Expr) {
     let reduced = interpret(load(name));
     assert_eq!(reduced, expect);
