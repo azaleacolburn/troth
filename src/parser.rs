@@ -26,7 +26,6 @@ impl Parser {
     fn expression(&mut self) -> Result<Expression> {
         Ok(match self.get() {
             Token::OParen => {
-                println!("here");
                 self.next();
                 let expr = match self.get() {
                     Token::Lambda => self.abstraction()?,
