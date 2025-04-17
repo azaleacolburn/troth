@@ -40,4 +40,15 @@ impl Parser {
     pub fn new_def(&mut self, id: String, expr: Expression) {
         self.definitions.insert(id, expr);
     }
+
+    pub fn all_definitions(&self) -> HashMap<String, Expression> {
+        self.definitions.clone()
+    }
+
+    pub fn merge_definitions(&mut self, other: &Parser) {
+        other
+            .definitions
+            .iter()
+            .for_each(|(id, expr)| self.new_def(id.clone(), expr.clone()));
+    }
 }

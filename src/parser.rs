@@ -1,4 +1,9 @@
-use crate::{lexer::Token, token_handler::Parser};
+use std::{fs, path::PathBuf};
+
+use crate::{
+    lexer::{lex, Token},
+    token_handler::Parser,
+};
 use anyhow::{bail, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,6 +18,7 @@ impl Parser {
     pub fn parse(&mut self) -> Result<Option<Expression>> {
         match self.get() {
             Token::Define => self.definition(),
+            Token::Use(path) => self.include(path.clone()),
             _ => Ok(Some(self.application()?)),
         }
     }
@@ -105,6 +111,19 @@ impl Parser {
         }
 
         bail!("Definition without name");
+    }
+
+    fn include(&mut self, path: PathBuf) -> Result<Option<Expression>> {
+        assert!(path.is_file());
+
+        let file = fs::read_to_string(path)?;
+        let tokens = lex(file);
+        let mut parser = Parser::new(tokens);
+        parser.parse()?;
+
+        self.merge_definitions(&parser);
+
+        Ok(None)
     }
 }
 
