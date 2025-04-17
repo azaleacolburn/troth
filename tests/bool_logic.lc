@@ -1,17 +1,17 @@
 fn TRUE la.lb.a;
 fn FALSE la.lb.b;
 
-// Logical AND (&)
-fn AND la.lb.((a b) a);
+// Logical AND
+fn && la.lb.((a b) a);
 
-// Logical OR (|)
-fn OR la.lb.((a a) b);
+// Logical OR
+fn || la.lb.((a a) b);
 
-// Logical NOT (!)
-fn NOT la.lb.lc.((a c) b);
+// Logical NOT
+fn ! la.lb.lc.((a c) b);
 
 // Expression-based if statement
 // Params: condition, true case, false case
 fn IF_ELSE lcond.lthen.lelse.((cond then) else);
 
-IF_ELSE ((AND (NOT FALSE)) TRUE) first second
+IF_ELSE (&& (! FALSE) TRUE) first second

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     OParen,
@@ -7,6 +9,7 @@ pub enum Token {
     Id(String),
     Alias(String),
     Define,
+    Use(PathBuf),
     Semi,
 }
 
@@ -24,6 +27,17 @@ pub fn lex(code: String) -> Vec<Token> {
             'f' if code[i + 1] == 'n' && code[i + 2] == ' ' => {
                 i += 2;
                 tokens.push(Token::Define);
+            }
+            'u' if code[i + 1] == 's'
+                && code[i + 2] == 'e'
+                && (code[i + 3] == ' ' || code[i + 3] == '"') =>
+            {
+                i += 3;
+                let mut path_str = String::new();
+                while code[i] != '"' {
+                    path_str.push(code[i]);
+                    i += 1;
+                }
             }
             '/' if code[i + 1] == '/' => {
                 i += 1;
@@ -76,15 +90,15 @@ fn is_valid_symbol(c: char) -> bool {
 impl ToString for Token {
     fn to_string(&self) -> String {
         match self {
-            Token::OParen => ")",
-            Token::CParen => "(",
-            Token::Dot => ".",
-            Token::Semi => ";",
-            Token::Lambda => "l",
-            Token::Define => "fn",
-            Token::Id(id) => id,
-            Token::Alias(id) => id,
+            Token::OParen => ")".into(),
+            Token::CParen => "(".into(),
+            Token::Dot => ".".into(),
+            Token::Semi => ";".into(),
+            Token::Use(path) => format!("use \"{}\"", path.to_str().unwrap()),
+            Token::Lambda => "l".into(),
+            Token::Define => "fn".into(),
+            Token::Id(id) => id.into(),
+            Token::Alias(id) => id.into(),
         }
-        .into()
     }
 }
