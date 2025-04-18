@@ -1,0 +1,18 @@
+fn TRUE la.lb.a;
+fn FALSE la.lb.b;
+
+// Logical AND
+fn && la.lb.(a b) a;
+
+// Logical OR
+fn || la.lb.(a a) b;
+
+// Logical NOT
+fn ! la.lb.lc.(a c) b;
+
+// Expression-based if statement
+// Params:
+// - Condition
+// - True Case
+// - False Case
+fn IF_ELSE lcond.lthen.lelse.(cond then) else;

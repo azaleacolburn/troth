@@ -34,15 +34,12 @@ impl Parser {
     }
 
     pub fn get_def(&self, id: &str) -> Expression {
+        println!("{id}");
         self.definitions.get(id).unwrap().clone()
     }
 
     pub fn new_def(&mut self, id: String, expr: Expression) {
         self.definitions.insert(id, expr);
-    }
-
-    pub fn all_definitions(&self) -> HashMap<String, Expression> {
-        self.definitions.clone()
     }
 
     pub fn merge_definitions(&mut self, other: &Parser) {
