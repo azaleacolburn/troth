@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{arg, command, Parser};
-use serde::Serialize;
+// use serde::Serialize;
 use std::{
     io::{stdin, stdout, Read, Write},
     path::PathBuf,
@@ -20,8 +20,8 @@ pub struct Cli {
     output_file: Option<PathBuf>,
 }
 
-#[derive(clap::ValueEnum, Clone, Debug, Serialize, Default)]
-#[serde(rename_all = "lowercase")]
+#[derive(clap::ValueEnum, Clone, Debug, Default)]
+#[clap(rename_all = "lowercase")]
 pub enum BackendOption {
     #[default]
     Reduce,

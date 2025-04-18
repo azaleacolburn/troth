@@ -1,9 +1,13 @@
 [package]
 name = "troth"
+authors = ["Azalea Colburn azaleacolburn@gmail.com"]
 version = "0.1.0"
+description = "A Simple Lambda Calculus Interpreter"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/azaleacolburn/troth"
+keywords = ["lambda-calculus", "parser", "interpreter", "functional"]
 
 [dependencies]
 anyhow = "1.0.97"
 clap = { version = "4.5.34", features = ["derive"] }
-serde = { version = "1.0.219", features = ["derive"] }
