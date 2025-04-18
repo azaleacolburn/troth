@@ -1,6 +1,5 @@
-use std::fs::read_to_string;
-
 use crate::{lexer, parser::Expression as Expr, reducer, token_handler};
+use std::fs::read_to_string;
 
 #[test]
 fn id_reduct() {
@@ -36,6 +35,12 @@ fn arithmetic() {
 fn use_statement() {
     let expect = Expr::Id("first".into());
     test("use_statement", Some(expect));
+}
+
+#[test]
+fn y_combinator() {
+    let expect = Expr::Id("a".into());
+    test("y_combinator", Some(expect));
 }
 
 fn test(name: impl ToString, expect: Option<Expr>) {
