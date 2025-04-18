@@ -1,0 +1,17 @@
+use "./tests/bool.lc";
+
+fn 0 lf.lx.x;
+fn 1 lf.lx.f x;
+fn 2 lf.lx.f (f x);
+
+// fn SUCC lx.ln.lm.n ((x n) m); doesn't work
+fn ++ lx.ln.lm.(n ((x n) m));
+fn PREV ln.lf.lx.(((n (lg.lh.(h g f))) lu.x) lu.u);
+fn + lx.ly.(x (++ y));
+fn - lx.ly.(x (PREV y));
+
+fn IS_ZERO ln.(n lx.FALSE) TRUE;
+fn <= lm.ln.(IS_ZERO (- m n));
+fn = lm.ln.(&& (<= m n)) (<= n m);
+
+IF_ELSE (= (+ 1 2) (++ 2)) a b

@@ -34,7 +34,6 @@ impl Parser {
     }
 
     pub fn get_def(&self, id: &str) -> Expression {
-        println!("{id}");
         self.definitions.get(id).unwrap().clone()
     }
 
@@ -47,5 +46,13 @@ impl Parser {
             .definitions
             .iter()
             .for_each(|(id, expr)| self.new_def(id.clone(), expr.clone()));
+    }
+
+    pub fn all_defs(&self) -> HashMap<String, Expression> {
+        self.definitions.clone()
+    }
+
+    pub fn set_map(&mut self, defs: HashMap<String, Expression>) {
+        self.definitions = defs;
     }
 }
