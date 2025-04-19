@@ -1,10 +1,9 @@
-use std::{fs, path::PathBuf};
-
 use crate::{
     lexer::{lex, Token},
     token_handler::Parser,
 };
 use anyhow::{bail, Result};
+use std::{fs, path::PathBuf};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -14,7 +13,6 @@ pub enum Expression {
 }
 
 impl Parser {
-    // TODO Find better way to return null
     pub fn parse(&mut self) -> Result<Option<Expression>> {
         match self.get() {
             Token::Define => self.definition(),
@@ -62,7 +60,10 @@ impl Parser {
             ));
         }
 
-        bail!("Found abstraction without id");
+        bail!(
+            "Expected id after abstraction, found {}",
+            self.get().to_string()
+        );
     }
 
     fn application(&mut self) -> Result<Expression> {
