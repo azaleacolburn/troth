@@ -1,5 +1,4 @@
-use crate::{lexer, parser::Expression as Expr, reducer, token_handler};
-use std::fs::read_to_string;
+use crate::{interpret, load, parser::Expression as Expr};
 
 #[test]
 fn id_reduct() {
@@ -38,30 +37,12 @@ fn use_statement() {
 }
 
 #[test]
-fn y_combinator() {
+fn fibonacci_y_combinator() {
     let expect = Expr::Id("a".into());
-    test("y_combinator", Some(expect));
+    test("fibonacci_y_combinator", Some(expect));
 }
 
 fn test(name: impl ToString, expect: Option<Expr>) {
     let reduced = interpret(load(name));
     assert_eq!(reduced, expect);
-}
-fn load(name: impl ToString) -> String {
-    let name = format!("./tests/{}.lc", name.to_string());
-    read_to_string(name).expect("Test function missing test file")
-}
-
-fn interpret(code: String) -> Option<Expr> {
-    let tokens = lexer::lex(code);
-    println!("{:?}", tokens);
-    let mut parser = token_handler::Parser::new(tokens);
-    let ast = match parser.parse().unwrap() {
-        Some(ast) => ast,
-        None => return None,
-    };
-    println!("{:?}", ast);
-    let reduced = reducer::reduce(&ast);
-    println!("{:?}", reduced);
-    Some(reduced)
 }

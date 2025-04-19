@@ -3,6 +3,7 @@ use clap::Parser;
 use cli::{BackendOption, Cli};
 use parser::Expression;
 use reducer::reduce;
+use std::fs::read_to_string;
 
 mod cli;
 mod lexer;
@@ -38,4 +39,23 @@ fn main() -> Result<()> {
 fn handle_reduction(ast: &mut Expression) -> String {
     reduce(ast);
     format!("{}\n", ast.to_string())
+}
+
+pub fn load(name: impl ToString) -> String {
+    let name = format!("./tests/{}.lc", name.to_string());
+    read_to_string(name).expect("Test function missing test file")
+}
+
+pub fn interpret(code: String) -> Option<Expression> {
+    let tokens = lexer::lex(code);
+    println!("{:?}", tokens);
+    let mut parser = token_handler::Parser::new(tokens);
+    let ast = match parser.parse().unwrap() {
+        Some(ast) => ast,
+        None => return None,
+    };
+    println!("{:?}", ast);
+    let reduced = reducer::reduce(&ast);
+    println!("{:?}", reduced);
+    Some(reduced)
 }
