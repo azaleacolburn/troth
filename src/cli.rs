@@ -18,6 +18,9 @@ pub struct Cli {
     // Default is stdout
     #[arg(short, long, value_name = "path")]
     output_file: Option<PathBuf>,
+
+    #[arg(short, long)]
+    pub debug: bool,
 }
 
 #[derive(clap::ValueEnum, Clone, Debug, Default)]
@@ -25,7 +28,7 @@ pub struct Cli {
 pub enum BackendOption {
     #[default]
     Reduce,
-    Transpile, // To C
+    Transpile, // To JS
     Compile,
 }
 

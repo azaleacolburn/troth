@@ -12,6 +12,7 @@ mod stdlib;
 #[cfg(test)]
 mod test;
 mod token_handler;
+mod transpiler;
 
 fn main() -> Result<()> {
     let stdlib_definitions = stdlib::stdlib_definitions()?;
@@ -23,17 +24,18 @@ fn main() -> Result<()> {
     let mut parser = token_handler::Parser::new(tokens);
 
     parser.set_map(stdlib_definitions);
-    let ast = parser.parse()?.unwrap();
+    let mut ast = parser.parse()?.unwrap();
 
     let output: String = match cli.get_backend() {
-        BackendOption::Reduce => handle_reduction(&ast),
+        BackendOption::Reduce => handle_reduction(&mut ast),
         BackendOption::Compile => panic!("Unsupported Backend Option"),
-        BackendOption::Transpile => panic!("Unsupported Backend Option"),
+        BackendOption::Transpile => transpiler::to_javascript_naive(&ast),
     };
 
     cli.write_output(&output)
 }
 
-fn handle_reduction(ast: &Expression) -> String {
-    format!("{}\n", reduce(ast).to_string())
+fn handle_reduction(ast: &mut Expression) -> String {
+    reduce(ast);
+    format!("{}\n", ast.to_string())
 }
