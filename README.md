@@ -71,9 +71,11 @@ lambda: LAMBDA ID DOT expression
   - [x] Standard Library for Basic Functions (auto-included)
 - [ ] Multiple Backend Options
   - [x] Beta Reduction
-  - [ ] Transpilation to C
-  - [ ] Transpilation to some functional language
-  - [ ] Compilation to ARM64 Assembly
+  - [x] Naive transpilation to λ-calculus with JS syntax
+
+## Notes
+
+Transpilation of λ-calculus to higher-level languages is a uniquely difficult task. Nearly all constructs that are built into other languages, such as number literals, are simply encoded in the λ-calculus. This means that while sometimes certain patterns simply act like their analog in a higher-level language, sometimes they serve completely unrelated purposes. Additionally, there are certain quirks of the λ-calculus, which allow these analogs to have a dual form, such as numerical lliterals, which in their Church-encoded form can be used as definite for-loops as well as number literals. Decyphering this seems impossible algorithmically, thus until future revelations, I will not attempt it.
 
 ## Quirks
 
