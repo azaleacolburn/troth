@@ -1,8 +1,7 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use clap::Parser;
 use cli::{BackendOption, Cli};
 use parser::Expression;
-use reducer::reduce;
 use std::fs::read_to_string;
 
 mod cli;
@@ -25,11 +24,17 @@ fn main() -> Result<()> {
     let mut parser = token_handler::Parser::new(tokens);
 
     parser.set_map(stdlib_definitions);
-    let mut ast = parser.parse()?.unwrap();
+    let mut ast = match parser.parse()? {
+        Some(ast) => ast,
+        None => {
+            println!("Warning: Parsed Independent Library File (Produced No Output)");
+            return Ok(());
+        }
+    };
 
     let output: String = match cli.get_backend() {
         BackendOption::Reduce => handle_reduction(&mut ast),
-        BackendOption::Compile => panic!("Unsupported Backend Option"),
+        BackendOption::Compile => bail!("Unsupported Backend Option"),
         BackendOption::Transpile => transpiler::to_javascript_naive(&ast),
     };
 
@@ -37,8 +42,10 @@ fn main() -> Result<()> {
 }
 
 fn handle_reduction(ast: &mut Expression) -> String {
-    reduce(ast);
-    format!("{}\n", ast.to_string())
+    let mut expr = ast.reduce().to_string();
+    expr.push('\n');
+
+    expr
 }
 
 pub fn load(name: impl ToString) -> String {
@@ -46,16 +53,16 @@ pub fn load(name: impl ToString) -> String {
     read_to_string(name).expect("Test function missing test file")
 }
 
-pub fn interpret(code: String) -> Option<Expression> {
+pub fn interpret(code: String) -> Result<Option<Expression>> {
     let tokens = lexer::lex(code);
     println!("{:?}", tokens);
     let mut parser = token_handler::Parser::new(tokens);
-    let ast = match parser.parse().unwrap() {
+    let ast = match parser.parse()? {
         Some(ast) => ast,
-        None => return None,
+        None => return Ok(None),
     };
     println!("{:?}", ast);
-    let reduced = reducer::reduce(&ast);
+    let reduced = ast.reduce();
     println!("{:?}", reduced);
-    Some(reduced)
+    Ok(Some(reduced))
 }

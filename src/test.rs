@@ -43,6 +43,6 @@ fn fibonacci_y_combinator() {
 }
 
 fn test(name: impl ToString, expect: Option<Expr>) {
-    let reduced = interpret(load(name));
+    let reduced = interpret(load(name)).unwrap();
     assert_eq!(reduced, expect);
 }
