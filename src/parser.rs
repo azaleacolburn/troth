@@ -1,7 +1,4 @@
-use crate::{
-    lexer::{lex, Token},
-    token_handler::Parser,
-};
+use crate::{lexer::Token, token_handler::Parser};
 use anyhow::{bail, Result};
 use std::{fs, path::PathBuf};
 
@@ -80,7 +77,7 @@ impl Parser {
             }
 
             let b = Box::new(self.expression()?);
-            a = Box::new(Expression::Application(a.clone(), b));
+            *a = Expression::Application(a.clone(), b);
         }
     }
 
@@ -117,8 +114,7 @@ impl Parser {
         assert!(path.is_file());
 
         let file = fs::read_to_string(path)?;
-        let tokens = lex(file);
-        let mut parser = Parser::new(tokens);
+        let mut parser = Parser::from_source(file);
         parser.parse()?;
 
         self.next();

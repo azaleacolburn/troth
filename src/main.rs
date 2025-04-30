@@ -1,6 +1,7 @@
 use anyhow::{bail, Result};
 use clap::Parser;
 use cli::{BackendOption, Cli};
+use colored::Colorize;
 use parser::Expression;
 use std::fs::read_to_string;
 
@@ -18,23 +19,27 @@ fn main() -> Result<()> {
     let stdlib_definitions = stdlib::stdlib_definitions()?;
 
     let cli = Cli::parse();
-    let code = cli.read_input()?;
+    let code = match cli.read_input() {
+        Ok(code) => code,
+        Err(err) => bail!("{}", err.to_string().red()),
+    };
 
-    let tokens = lexer::lex(code);
-    let mut parser = token_handler::Parser::new(tokens);
-
+    let mut parser = token_handler::Parser::from_source(code);
     parser.set_map(stdlib_definitions);
     let mut ast = match parser.parse()? {
         Some(ast) => ast,
         None => {
-            println!("Warning: Parsed Independent Library File (Produced No Output)");
+            println!(
+                "{}",
+                "Warning: Parsed Independent Library File (Produced No Output)".yellow()
+            );
             return Ok(());
         }
     };
 
     let output: String = match cli.get_backend() {
         BackendOption::Reduce => handle_reduction(&mut ast),
-        BackendOption::Compile => bail!("Unsupported Backend Option"),
+        BackendOption::Compile => bail!("{}", "Unsupported Backend Option".red()),
         BackendOption::Transpile => transpiler::to_javascript_naive(&ast),
     };
 
@@ -54,9 +59,7 @@ pub fn load(name: impl ToString) -> String {
 }
 
 pub fn interpret(code: String) -> Result<Option<Expression>> {
-    let tokens = lexer::lex(code);
-    println!("{:?}", tokens);
-    let mut parser = token_handler::Parser::new(tokens);
+    let mut parser = token_handler::Parser::from_source(code);
     let ast = match parser.parse()? {
         Some(ast) => ast,
         None => return Ok(None),
