@@ -19,6 +19,10 @@ pub struct Cli {
     #[arg(short, long, value_name = "path")]
     output_file: Option<PathBuf>,
 
+    // Only works with reduction backend option for now
+    #[arg(short, long)]
+    pub visualize: bool,
+
     #[arg(short, long)]
     pub debug: bool,
 }

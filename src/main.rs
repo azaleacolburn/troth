@@ -6,6 +6,7 @@ use parser::Expression;
 use std::fs::read_to_string;
 
 mod cli;
+mod error;
 mod lexer;
 mod parser;
 mod reducer;
@@ -14,6 +15,7 @@ mod stdlib;
 mod test;
 mod token_handler;
 mod transpiler;
+mod visualizer;
 
 fn main() -> Result<()> {
     let stdlib_definitions = stdlib::stdlib_definitions()?;

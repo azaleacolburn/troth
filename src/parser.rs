@@ -1,5 +1,6 @@
 use crate::{lexer::Token, token_handler::Parser};
 use anyhow::{bail, Result};
+use colored::Colorize;
 use std::{fs, path::PathBuf};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,7 +31,11 @@ impl Parser {
                 self.next();
                 let cparen = self.get();
                 if *cparen != Token::CParen {
-                    bail!("Expected CParen found {}", cparen.to_string());
+                    bail!(
+                        "{} {}",
+                        "Expected CParen found".red(),
+                        cparen.to_string().red()
+                    );
                 }
 
                 expr
@@ -38,7 +43,11 @@ impl Parser {
             Token::Lambda => self.abstraction()?,
             Token::Id(id) => Expression::Id(id.clone()),
             Token::Alias(id) => alpha_conversion(Box::new(self.get_def(&id)), &id),
-            c => bail!("Unsupported Token: {:?}", c),
+            c => bail!(
+                "{} {}",
+                "Token in Illegal Position: ".red(),
+                c.to_string().red()
+            ),
         })
     }
 
@@ -47,7 +56,7 @@ impl Parser {
         if let Token::Id(id) = self.get().clone() {
             self.next();
             if *self.get() != Token::Dot {
-                bail!("Found abstraction without dot");
+                bail!("{}", "Found abstraction without dot".red());
             }
 
             self.next();
@@ -58,8 +67,9 @@ impl Parser {
         }
 
         bail!(
-            "Expected id after abstraction, found {}",
-            self.get().to_string()
+            "{} {}",
+            "Expected id after abstraction, found".red(),
+            self.get().to_string().red()
         );
     }
 
@@ -90,8 +100,9 @@ impl Parser {
 
             if *self.get() != Token::Semi {
                 bail!(
-                    "Expected Semi after definition, found {}",
-                    self.get().to_string()
+                    "{} {}",
+                    "Expected Semi after definition, found".red(),
+                    self.get().to_string().red()
                 );
             }
 
@@ -107,7 +118,7 @@ impl Parser {
             return r;
         }
 
-        bail!("Definition without name");
+        bail!("{}", "Found definition without name".red());
     }
 
     fn include(&mut self, path: PathBuf) -> Result<Option<Expression>> {
@@ -120,8 +131,9 @@ impl Parser {
         self.next();
         if *self.get() != Token::Semi {
             bail!(
-                "Expected Semi after use statement, found {}",
-                self.get().to_string()
+                "{} {}",
+                "Expected Semi after use statement, found".red(),
+                self.get().to_string().red()
             )
         }
 
