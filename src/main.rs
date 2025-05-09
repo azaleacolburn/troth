@@ -15,6 +15,7 @@ mod stdlib;
 mod test;
 mod token_handler;
 mod transpiler;
+mod type_system;
 mod visualizer;
 
 fn main() -> Result<()> {

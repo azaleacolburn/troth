@@ -12,6 +12,10 @@ pub enum Token {
     Define,
     Use(PathBuf),
     Semi,
+    Colon,
+    Arrow,
+    Int,
+    Bool,
 }
 
 impl Parser {
@@ -52,6 +56,28 @@ impl Parser {
                 ' ' => {}
                 '\n' => {}
                 ';' => tokens.push(Token::Semi),
+                'b' if code[i + 1] == 'o'
+                    && code[i + 2] == 'o'
+                    && code[i + 3] == 'l'
+                    && !(code[i + 4].is_alphabetic() || code[i + 4] == '_') =>
+                {
+                    i += 3;
+                    tokens.push(Token::Bool)
+                }
+                'i' if code[i + 1] == 'n'
+                    && code[i + 2] == 't'
+                    && !(code[i + 3].is_alphabetic() || code[i + 3] == '_') =>
+                {
+                    i += 2;
+                    tokens.push(Token::Int);
+                }
+                '-' if code[i + 1] == '>'
+                    && !(code[i + 2].is_alphabetic() || code[i + 2] == '_') =>
+                {
+                    i += 1;
+                    tokens.push(Token::Arrow);
+                }
+                ':' => tokens.push(Token::Colon),
                 mut c if c.is_uppercase() || is_valid_symbol(c) || c.is_numeric() => {
                     alias.push(c);
                     while i + 1 < code.len()
