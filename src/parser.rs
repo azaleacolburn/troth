@@ -1,4 +1,4 @@
-use crate::{lexer::Token, token_handler::Parser};
+use crate::{lexer::Token, token_handler::Parser, type_system::ExprType};
 use anyhow::{bail, Result};
 use colored::Colorize;
 use std::{fs, path::PathBuf};
@@ -6,7 +6,11 @@ use std::{fs, path::PathBuf};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Id(String),
-    Abstraction(String, Box<Expression>),
+    Abstraction {
+        arg: String,
+        expr: Box<Expression>,
+        t: ExprType,
+    },
     Application(Box<Expression>, Box<Expression>),
 }
 
@@ -55,15 +59,20 @@ impl Parser {
         self.next();
         if let Token::Id(id) = self.get().clone() {
             self.next();
+
+            let abstraction_type = self.parse_type();
+            self.next();
+
             if *self.get() != Token::Dot {
                 bail!("{}", "Found abstraction without dot".red());
             }
 
             self.next();
-            return Ok(Expression::Abstraction(
-                id.clone(),
-                Box::new(self.application()?),
-            ));
+            return Ok(Expression::Abstraction {
+                arg: id.clone(),
+                expr: Box::new(self.application()?),
+                t: abstraction_type,
+            });
         }
 
         bail!(

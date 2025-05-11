@@ -7,9 +7,9 @@ pub fn to_javascript_naive(ast: &Expression) -> String {
             let arg = to_javascript_naive(arg);
             format!("{lambda}({arg})")
         }
-        Expression::Abstraction(id, expr) => {
+        Expression::Abstraction { arg, expr, t: _ } => {
             let expr = to_javascript_naive(expr);
-            format!("({id} => {expr})")
+            format!("({arg} => {expr})")
         }
         Expression::Id(id) => format!("{id}"),
     }

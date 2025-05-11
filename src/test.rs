@@ -1,4 +1,4 @@
-use crate::{interpret, load, parser::Expression as Expr};
+use crate::{interpret, load, parser::Expression as Expr, type_system::ExprType};
 
 #[test]
 fn id_reduct() {
@@ -8,7 +8,11 @@ fn id_reduct() {
 
 #[test]
 fn lambda_reduct() {
-    let expect = Expr::Abstraction("y".into(), Box::new(Expr::Id("y".into())));
+    let expect = Expr::Abstraction {
+        arg: "y".into(),
+        expr: Box::new(Expr::Id("y".into())),
+        t: ExprType::Int,
+    };
     test("lambda_reduct", Some(expect));
 }
 

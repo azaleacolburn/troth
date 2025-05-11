@@ -1,23 +1,44 @@
-use crate::{lexer::Token, parser::Expression};
+use anyhow::bail;
 
+use crate::{lexer::Token, token_handler::Parser};
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum ExprType {
     Lambda {
         arg: Box<ExprType>,
-        expr: Box<ExprType>,
+        ret: Box<ExprType>,
     },
     Int,
     Bool,
 }
 
-impl ExprType {
-    pub fn parse(tokens: Vec<Token>) -> Self {
-        let mut i = 0;
-        while i < tokens.len() {
-            match tokens[i] {
-                Token::Colon
+impl Parser {
+    pub fn parse_type(&mut self) -> Result<ExprType> {
+        self.next();
+        let a_token = self.get();
+        let a = match a_token {
+            Token::Bool => ExprType::Bool,
+            Token::Int => ExprType::Int,
+            Token::OParen => {
+                self.next();
+                let a = self.parse_type();
+                if *self.get() != Token::CParen {
+                    bail!("Unclosed CParen");
+                }
+                a
             }
-        }
+            _ => bail!("Unsupported type"),
+        };
+        self.next();
+
+        Ok(match self.get() {
+            Token::Arrow => {
+                self.next();
+                let b = self.parse_type()?;
+
+                ExprType::Lambda { arg: a, ret: b }
+            }
+            _ => a,
+        })
     }
 }
-
-impl Expression {}

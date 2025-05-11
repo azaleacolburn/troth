@@ -130,6 +130,10 @@ impl ToString for Token {
             Token::Define => "fn".into(),
             Token::Id(id) => id.into(),
             Token::Alias(id) => id.into(),
+            Token::Colon => ":".into(),
+            Token::Arrow => "->".into(),
+            Token::Int => "int".into(),
+            Token::Bool => "bool".into(),
         }
     }
 }
