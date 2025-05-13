@@ -9,7 +9,7 @@ pub enum Expression {
     Abstraction {
         arg: String,
         expr: Box<Expression>,
-        t: ExprType,
+        t: Option<ExprType>,
     },
     Application(Box<Expression>, Box<Expression>),
 }
@@ -60,8 +60,14 @@ impl Parser {
         if let Token::Id(id) = self.get().clone() {
             self.next();
 
-            let abstraction_type = self.parse_type();
-            self.next();
+            let abstraction_type = match &self.get() {
+                Token::Colon => {
+                    let t = self.parse_type()?;
+                    self.next();
+                    Some(t)
+                }
+                _ => None,
+            };
 
             if *self.get() != Token::Dot {
                 bail!("{}", "Found abstraction without dot".red());
@@ -160,10 +166,18 @@ fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
             let new_id = format!("{id}_{postfix}");
             Expression::Id(new_id)
         }
-        Expression::Abstraction(id, abstraction_expr) => {
+        Expression::Abstraction {
+            arg,
+            expr: abstraction_expr,
+            t,
+        } => {
             let new_expr = Box::new(alpha_conversion(abstraction_expr, postfix));
-            let new_id = format!("{id}_{postfix}");
-            Expression::Abstraction(new_id, new_expr)
+            let new_id = format!("{arg}_{postfix}");
+            Expression::Abstraction {
+                arg: new_id,
+                expr: new_expr,
+                t,
+            }
         }
         Expression::Application(expr1, expr2) => {
             let new_expr1 = Box::new(alpha_conversion(expr1, postfix));
@@ -183,10 +197,10 @@ impl ToString for Expression {
 
                 format!("({string1} {string2})")
             }
-            Expression::Abstraction(id, expr) => {
+            Expression::Abstraction { arg, expr, t: _ } => {
                 let string_expr = expr.to_string();
 
-                format!("l{id}.{string_expr}")
+                format!("l{arg}.{string_expr}")
             }
         }
     }

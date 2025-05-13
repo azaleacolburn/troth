@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{bail, Result};
 
 use crate::{lexer::Token, token_handler::Parser};
 
@@ -21,7 +21,7 @@ impl Parser {
             Token::Int => ExprType::Int,
             Token::OParen => {
                 self.next();
-                let a = self.parse_type();
+                let a = self.parse_type()?;
                 if *self.get() != Token::CParen {
                     bail!("Unclosed CParen");
                 }
@@ -36,7 +36,10 @@ impl Parser {
                 self.next();
                 let b = self.parse_type()?;
 
-                ExprType::Lambda { arg: a, ret: b }
+                ExprType::Lambda {
+                    arg: Box::new(a),
+                    ret: Box::new(b),
+                }
             }
             _ => a,
         })

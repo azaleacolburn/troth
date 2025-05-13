@@ -7,14 +7,18 @@ impl Expression {
                 let reduced_lambda = lambda.reduce();
                 let reduced_arg = arg.reduce();
 
-                if let Expression::Abstraction(id, mut expr) = reduced_lambda {
-                    expr.replace(&id, reduced_arg);
+                if let Expression::Abstraction {
+                    arg,
+                    mut expr,
+                    t: _,
+                } = reduced_lambda
+                {
+                    expr.replace(&arg, reduced_arg);
                     return expr.reduce();
                 }
                 return Expression::Application(Box::new(reduced_lambda), Box::new(reduced_arg));
             }
-            Expression::Abstraction(id, expr) => Expression::Abstraction(id.clone(), expr.clone()),
-            Expression::Id(id) => Expression::Id(id.clone()),
+            _ => self.clone(),
         }
     }
 
@@ -27,7 +31,7 @@ impl Expression {
                 lambda.replace(id, argument.clone());
                 expr.replace(id, argument);
             }
-            Expression::Abstraction(_sub_id, expr) => {
+            Expression::Abstraction { arg: _, expr, t: _ } => {
                 expr.replace(id, argument);
             }
             Expression::Id(_) => {}

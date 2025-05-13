@@ -11,7 +11,7 @@ fn lambda_reduct() {
     let expect = Expr::Abstraction {
         arg: "y".into(),
         expr: Box::new(Expr::Id("y".into())),
-        t: ExprType::Int,
+        t: None,
     };
     test("lambda_reduct", Some(expect));
 }
