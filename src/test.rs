@@ -1,4 +1,4 @@
-use crate::{interpret, load, parser::Expression as Expr, type_system::ExprType};
+use crate::{interpret, load, parser::Expression as Expr};
 
 #[test]
 fn id_reduct() {

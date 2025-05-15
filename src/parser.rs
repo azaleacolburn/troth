@@ -59,7 +59,6 @@ impl Parser {
         self.next();
         if let Token::Id(id) = self.get().clone() {
             self.next();
-
             let abstraction_type = match &self.get() {
                 Token::Colon => {
                     let t = self.parse_type()?;
@@ -135,6 +134,8 @@ impl Parser {
 
         bail!("{}", "Found definition without name".red());
     }
+
+    // fn type_signature(&mut self) -> Result<Option<Expression>> {}
 
     fn include(&mut self, path: PathBuf) -> Result<Option<Expression>> {
         assert!(path.is_file());
