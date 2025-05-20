@@ -7,16 +7,17 @@ impl Expression {
                 let reduced_lambda = lambda.reduce();
                 let reduced_arg = arg.reduce();
 
-                if let Expression::Abstraction {
-                    arg,
-                    mut expr,
-                    t: _,
-                } = reduced_lambda
-                {
-                    expr.replace(&arg, reduced_arg);
-                    return expr.reduce();
+                match reduced_lambda {
+                    Expression::Abstraction {
+                        arg,
+                        mut expr,
+                        t: _,
+                    } => {
+                        expr.replace(&arg, reduced_arg);
+                        return expr.reduce();
+                    }
+                    _ => Expression::Application(Box::new(reduced_lambda), Box::new(reduced_arg)),
                 }
-                return Expression::Application(Box::new(reduced_lambda), Box::new(reduced_arg));
             }
             _ => self.clone(),
         }

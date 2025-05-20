@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::{arg, command, Parser};
 // use serde::Serialize;
 use std::{
+    fs,
     io::{stdin, stdout, Read, Write},
     path::PathBuf,
 };
@@ -55,12 +56,9 @@ impl Cli {
     }
 
     pub fn write_output(&self, output: &str) -> Result<()> {
-        match &self.output_file {
-            Some(name) => Ok(std::fs::write(name, output)?),
-            None => {
-                let mut handle = stdout().lock();
-                Ok(handle.write_all(output.as_bytes())?)
-            }
-        }
+        Ok(match &self.output_file {
+            Some(name) => fs::write(name, output)?,
+            None => stdout().lock().write_all(output.as_bytes())?,
+        })
     }
 }
