@@ -13,7 +13,7 @@ impl Expression {
                         mut expr,
                         t: _,
                     } => {
-                        expr.replace(&arg, reduced_arg);
+                        expr.replace(&arg, &reduced_arg);
                         return expr.reduce();
                     }
                     _ => Expression::Application(Box::new(reduced_lambda), Box::new(reduced_arg)),
@@ -23,13 +23,13 @@ impl Expression {
         }
     }
 
-    fn replace(&mut self, id: &str, argument: Expression) {
+    fn replace(&mut self, id: &str, argument: &Expression) {
         match self {
             Expression::Id(sub_id) if sub_id == id => {
-                *self = argument;
+                *self = argument.clone();
             }
             Expression::Application(lambda, expr) => {
-                lambda.replace(id, argument.clone());
+                lambda.replace(id, argument);
                 expr.replace(id, argument);
             }
             Expression::Abstraction { arg: _, expr, t: _ } => {

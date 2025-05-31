@@ -120,7 +120,7 @@ impl Parser {
                 );
             }
 
-            self.new_def(id.clone(), expr);
+            self.new_def(id, expr);
 
             if self.is_done() {
                 return Ok(None);

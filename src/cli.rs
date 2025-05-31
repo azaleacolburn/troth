@@ -28,7 +28,7 @@ pub struct Cli {
     pub debug: bool,
 }
 
-#[derive(clap::ValueEnum, Clone, Debug, Default)]
+#[derive(clap::ValueEnum, Clone, Copy, Debug, Default)]
 #[clap(rename_all = "lowercase")]
 pub enum BackendOption {
     #[default]
@@ -52,7 +52,7 @@ impl Cli {
     }
 
     pub fn get_backend(&self) -> BackendOption {
-        self.backend.clone().unwrap_or_default()
+        self.backend.unwrap_or_default()
     }
 
     pub fn write_output(&self, output: &str) -> Result<()> {
