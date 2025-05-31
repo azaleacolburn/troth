@@ -16,7 +16,6 @@ mod test;
 mod token_handler;
 mod transpiler;
 mod type_system;
-mod visualizer;
 
 fn main() -> Result<()> {
     let stdlib_definitions = stdlib::stdlib_definitions()?;

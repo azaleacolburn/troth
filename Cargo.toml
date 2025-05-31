@@ -9,8 +9,6 @@ repository = "https://github.com/azaleacolburn/troth"
 keywords = ["lambda-calculus", "parser", "interpreter", "functional"]
 
 [dependencies]
-animaterm = "0.2.9"
 anyhow = "1.0.97"
 clap = { version = "4.5.34", features = ["derive"] }
 colored = "3.0.0"
-rayon = "1.10.0"
