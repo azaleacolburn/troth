@@ -2,11 +2,12 @@
 name = "troth"
 authors = ["Azalea Colburn azaleacolburn@gmail.com"]
 version = "0.1.0"
-description = "A Simple Lambda Calculus Interpreter"
+description = "A Simple λ-Calculus Interpreter"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/azaleacolburn/troth"
 keywords = ["lambda-calculus", "parser", "interpreter", "functional"]
+readme = "README.md"
 
 [dependencies]
 anyhow = "1.0.97"
