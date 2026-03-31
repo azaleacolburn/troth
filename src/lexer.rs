@@ -1,5 +1,5 @@
 use crate::token_handler::Parser;
-use std::path::PathBuf;
+use std::{fmt::Display, path::PathBuf};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
@@ -118,9 +118,9 @@ fn is_valid_symbol(c: char) -> bool {
     symbols.contains(c)
 }
 
-impl ToString for Token {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
             Token::OParen => ")".into(),
             Token::CParen => "(".into(),
             Token::Dot => ".".into(),
@@ -134,6 +134,8 @@ impl ToString for Token {
             Token::Arrow => "->".into(),
             Token::Int => "int".into(),
             Token::Bool => "bool".into(),
-        }
+        };
+
+        f.write_str(str.as_str())
     }
 }

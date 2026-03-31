@@ -3,4 +3,4 @@ use "./tests/arithmetic.lc";
 fn Y lf.lx.(f (x x)) (la.lf.f (a a));
 fn FIB (Y lf.ln.(IS_ZERO n) 0 ((IS_ZERO (PREV n)) 1 (+ (f (PREV n)) (f (PREV (PREV n))))));
 
-IF_ELSE (= (FIB 1) 1) a b
+IF_ELSE (= (FIB 2) 1) a b

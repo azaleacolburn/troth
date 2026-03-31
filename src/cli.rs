@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{arg, command, Parser};
+use clap::Parser;
 // use serde::Serialize;
 use std::{
     fs,
@@ -56,9 +56,11 @@ impl Cli {
     }
 
     pub fn write_output(&self, output: &str) -> Result<()> {
-        Ok(match &self.output_file {
+        match &self.output_file {
             Some(name) => fs::write(name, output)?,
             None => stdout().lock().write_all(output.as_bytes())?,
-        })
+        };
+
+        Ok(())
     }
 }

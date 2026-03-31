@@ -1,7 +1,7 @@
 use crate::{lexer::Token, token_handler::Parser, type_system::ExprType};
 use anyhow::{bail, Result};
 use colored::Colorize;
-use std::{fs, path::PathBuf};
+use std::{fmt::Display, fs, path::PathBuf};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -15,6 +15,11 @@ pub enum Expression {
 }
 
 impl Parser {
+    /// Parses a series of statements (definitions and importations), followed with an optional
+    /// expression.
+    ///
+    /// The return type is optional, because the file/statements being parsed may only contain
+    /// definitions or importations, without an actual expression at the end.
     pub fn parse(&mut self) -> Result<Option<Expression>> {
         match self.get() {
             Token::Define => self.definition(),
@@ -24,7 +29,7 @@ impl Parser {
     }
 
     fn expression(&mut self) -> Result<Expression> {
-        Ok(match self.get() {
+        let expr = match self.get() {
             Token::OParen => {
                 self.next();
                 let expr = match self.get() {
@@ -46,13 +51,15 @@ impl Parser {
             }
             Token::Lambda => self.abstraction()?,
             Token::Id(id) => Expression::Id(id.clone()),
-            Token::Alias(id) => alpha_conversion(Box::new(self.get_def(&id)), &id),
+            Token::Alias(id) => alpha_conversion(self.get_def(id), id),
             c => bail!(
                 "{} {}",
                 "Token in Illegal Position: ".red(),
                 c.to_string().red()
             ),
-        })
+        };
+
+        Ok(expr)
     }
 
     fn abstraction(&mut self) -> Result<Expression> {
@@ -94,7 +101,6 @@ impl Parser {
                 return Ok(*a);
             }
             self.next();
-
             if *self.get() == Token::CParen || *self.get() == Token::Semi {
                 self.prev();
                 return Ok(*a);
@@ -107,32 +113,31 @@ impl Parser {
 
     fn definition(&mut self) -> Result<Option<Expression>> {
         self.next();
-        if let Token::Alias(id) = self.get().clone() {
-            self.next();
-            let expr = self.application()?;
-            self.next();
+        let Token::Alias(id) = self.get().clone() else {
+            bail!("{}", "Found definition without name".red());
+        };
 
-            if *self.get() != Token::Semi {
-                bail!(
-                    "{} {}",
-                    "Expected Semi after definition, found".red(),
-                    self.get().to_string().red()
-                );
-            }
+        self.next();
+        let expr = self.application()?;
 
-            self.new_def(id, expr);
-
-            if self.is_done() {
-                return Ok(None);
-            }
-
-            self.next();
-            let r = self.parse();
-
-            return r;
+        self.next();
+        if *self.get() != Token::Semi {
+            bail!(
+                "{} {}",
+                "Expected Semi after definition, found".red(),
+                self.get().to_string().red()
+            );
         }
 
-        bail!("{}", "Found definition without name".red());
+        self.new_def(id, expr);
+
+        if self.is_done() {
+            return Ok(None);
+        }
+
+        self.next();
+
+        self.parse()
     }
 
     // fn type_signature(&mut self) -> Result<Option<Expression>> {}
@@ -161,8 +166,8 @@ impl Parser {
 }
 
 // TODO Change to mutate `expr` instead of cloning it
-fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
-    match *expr {
+fn alpha_conversion(expr: Expression, postfix: &str) -> Expression {
+    match expr {
         Expression::Id(id) => {
             let new_id = format!("{id}_{postfix}");
             Expression::Id(new_id)
@@ -172,7 +177,7 @@ fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
             expr: abstraction_expr,
             t,
         } => {
-            let new_expr = Box::new(alpha_conversion(abstraction_expr, postfix));
+            let new_expr = Box::new(alpha_conversion(*abstraction_expr, postfix));
             let new_id = format!("{arg}_{postfix}");
             Expression::Abstraction {
                 arg: new_id,
@@ -181,27 +186,27 @@ fn alpha_conversion(expr: Box<Expression>, postfix: &str) -> Expression {
             }
         }
         Expression::Application(expr1, expr2) => {
-            let new_expr1 = Box::new(alpha_conversion(expr1, postfix));
-            let new_expr2 = Box::new(alpha_conversion(expr2, postfix));
+            let new_expr1 = Box::new(alpha_conversion(*expr1, postfix));
+            let new_expr2 = Box::new(alpha_conversion(*expr2, postfix));
             Expression::Application(new_expr1, new_expr2)
         }
     }
 }
 
-impl ToString for Expression {
-    fn to_string(&self) -> String {
+impl Display for Expression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Expression::Id(id) => String::from(id),
+            Expression::Id(id) => f.write_str(id),
             Expression::Application(expr1, expr2) => {
                 let string1 = expr1.to_string();
                 let string2 = expr2.to_string();
 
-                format!("({string1} {string2})")
+                f.write_str(format!("({string1} {string2})").as_str())
             }
             Expression::Abstraction { arg, expr, t: _ } => {
                 let string_expr = expr.to_string();
 
-                format!("l{arg}.{string_expr}")
+                f.write_str(format!("l{arg}.{string_expr}").as_str())
             }
         }
     }

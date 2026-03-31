@@ -11,6 +11,6 @@ pub fn to_javascript_naive(ast: &Expression) -> String {
             let expr = to_javascript_naive(expr);
             format!("({arg} => {expr})")
         }
-        Expression::Id(id) => format!("{id}"),
+        Expression::Id(id) => id.to_string(),
     }
 }

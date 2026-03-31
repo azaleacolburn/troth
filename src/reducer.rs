@@ -14,7 +14,8 @@ impl Expression {
                         t: _,
                     } => {
                         expr.replace(&arg, &reduced_arg);
-                        return expr.reduce();
+
+                        expr.reduce()
                     }
                     _ => Expression::Application(Box::new(reduced_lambda), Box::new(reduced_arg)),
                 }
